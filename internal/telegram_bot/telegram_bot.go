@@ -27,7 +27,7 @@ func NewBot(logger *zap.Logger) (*Bot, error) {
 		return nil, errors.New("no logger provided")
 	}
 
-	bot, err := tgbotapi.NewBotAPI("5427941656:AAHCBMvIo5iu6Sgtxm0hnXwAE3E9gKsK9fI")
+	bot, err := tgbotapi.NewBotAPI("6056577101:AAHUPXIbya0XBSkYC6z4LXOnF2vaJ_-XmQU")
 	if err != nil {
 		logger.Error("failed to create a new BotAPI instance", zap.Error(err))
 		return nil, err
@@ -37,7 +37,7 @@ func NewBot(logger *zap.Logger) (*Bot, error) {
 	logger.Debug("Authorized on ", zap.String("account", bot.Self.UserName))
 
 	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
+	u.Timeout = 3600
 
 	updates := bot.GetUpdatesChan(u)
 
@@ -122,16 +122,10 @@ func (b *Bot) switcherCallback(update tgbotapi.Update, msg tgbotapi.MessageConfi
 
 	case "Создать заказ":
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Введите верную сумму, минимальный лимит на создание транзакции - 300 рублей, максимальный"+
-			"- 300к рублей")
+			" - 300к рублей")
 		msg.ReplyMarkup = keyboards.ToMainThemeOrSendCheck
 		tgUtil.SendBotMessage(msg, b.Bot)
 		cc.Add(update.CallbackQuery.Message.Chat.ID, cc.DigitalSignature)
-
-	case "Прикрепить чек":
-		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, keyboards.FeedbackReply)
-		msg.ReplyMarkup = keyboards.ToMainTheme
-		tgUtil.SendBotMessage(msg, b.Bot)
-		cc.Add(update.CallbackQuery.Message.Chat.ID, cc.Feedback)
 
 	case "Меню":
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, keyboards.MenuReply)
