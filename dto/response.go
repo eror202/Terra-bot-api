@@ -6,5 +6,6 @@ type Response struct {
 	Id         int    `json:"id"`
 	ExternalID string `json:"externalID"`
 	Amount     int    `json:"amount"`
+	FormURL    string `json:"formURL"`
 	CardNumber string `json:"cardNumber"`
 }

@@ -64,9 +64,7 @@ func (b *Beluga) DigitalSignature(update tgbotapi.Update, bot *tgbotapi.BotAPI) 
 
 		amount := update.Message.Text
 		// log.Printf(txt)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Заявка на сумму: "+amount+" \n\n Переведите точную сумму на эти реквизиты, "+
-			"после прикрепите чек для подтверждения вашего платежа"+
-			"\n \n"+request(amount))
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Заявка на сумму: "+amount+" \n\n Переведите точную сумму на эти реквизиты \n\n"+request(amount))
 		msg.ReplyMarkup = keyboards.ToMainTheme
 		tgUtil.SendBotMessage(msg, bot)
 
@@ -112,10 +110,9 @@ func (b *Beluga) Feedback(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 func request(amount string) string {
 
-	url := "https://admin.paylama.io/api/api/payment/generate_invoice_card_transfer"
+	url := "https://admin.paylama.io/api/api/payment/p2p_form"
 
-	stringA := "{\n  \"payerID\": \"test\",\n  \"amount\":" + amount + " ,\n  \"bankName\": \"sberbank\",\n  \"comment\": \"comment\",\n  \"currencyID\": 1,\n  \"callbackURL\": \"https://google.com\"\n}"
-	payload := strings.NewReader(stringA)
+	payload := strings.NewReader("{\n  \"payerID\": \"test\",\n  \"amount\": " + amount + ",\n  \"expireAt\": 900,\n  \"comment\": \"comment\",\n  \"clientIP\": \"172.0.0.1\",\n  \"currencyID\": 1\n}")
 
 	req, _ := http.NewRequest("POST", url, payload)
 
@@ -130,21 +127,21 @@ func request(amount string) string {
 	var huy dto.Response
 	err := json.Unmarshal(body, &huy)
 	if err != nil {
-		return "Что-то в коде разъебалось"
+		return "Что-то в коде сломалось, напишите @Glav_Control_IT"
 	}
 	if huy.Success == true {
-		return huy.CardNumber
+		return huy.FormURL + "\nExternalID - " + huy.ExternalID
 	} else {
 		if huy.Cause == "No mid found for client!" {
-			return "Проблемы"
+			return "Проблемы, напишите @Glav_Control_IT"
 		} else if huy.Cause == "An error has occurred. Please try again later." {
-			return "Разъебалась лама"
+			return "Сломалась лама, напишите @Glav_Control_IT"
 		} else if huy.Cause == "minimum amount is 300" || huy.Cause == "maximum amount is 300000" {
 			return "Лимиты на создание от 300 до 300к, проверьте правильность введенной суммы"
 		} else if huy.Cause == "Validation error." {
 			return "Напишите сумму цифрами"
+		} else {
+			return "Ничего не вернулось"
 		}
 	}
-
-	return huy.CardNumber + " - Сбербанк"
 }
