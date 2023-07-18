@@ -112,7 +112,7 @@ func request(amount string) string {
 
 	url := "https://admin.paylama.io/api/api/payment/p2p_form"
 
-	payload := strings.NewReader("{\n  \"payerID\": \"test\",\n  \"amount\": " + amount + ",\n  \"expireAt\": 900,\n  \"comment\": \"comment\",\n  \"clientIP\": \"172.0.0.1\",\n  \"currencyID\": 1\n}")
+	payload := strings.NewReader("{\n  \"payerID\": \"test\",\n  \"amount\": " + amount + ",\n  \"expireAt\": 3600,\n  \"comment\": \"comment\",\n  \"clientIP\": \"172.0.0.1\",\n  \"currencyID\": 1\n}")
 
 	req, _ := http.NewRequest("POST", url, payload)
 
